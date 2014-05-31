@@ -1,0 +1,32 @@
+#!/usr/bin/perl
+#
+# requires:	gpg
+# input:	a text file containing a cleartext signature
+# output:	outputs result of signature verification to shell
+# verifies and strips a signature from the file
+#
+use strict;
+use warnings;
+
+die "error: file param missing\n" if @ARGV<1;
+die "error: file '$ARGV[0]' does not exist\n" unless -e $ARGV[0];
+`gpg --verify $ARGV[0]`;
+open(my $file, "+<", $ARGV[0])
+	or die "cannot write $ARGV[0]: $!";
+	my @lines = <$file>;
+	my $text = join('', @lines);
+	if ($text =~ /-----BEGIN PGP SIGNED MESSAGE-----/) {	#remove armor header, see RFC 4880, sec. 6.2
+		$text =~ /-----BEGIN PGP SIGNED MESSAGE-----\s*\n
+			(?-s:[a-zA-Z].+\n)*	# header lines begin with a letter
+			\s*\n			# one blank line marks the end of the header
+			(.*)			# the message we want to extract
+			-----BEGIN PGP SIGNATURE-----/xs;
+		$text = $1;
+		$text =~ s/^- //mg; #remove escape dashes, see RFC 4880, sec. 7.1
+		seek($file, 0, 0);
+		truncate($file, 0);
+		print $file $text;
+	} else {
+		print STDERR "file '$ARGV[0]' does not contain a cleartext signature\n";
+	}
+close($file);

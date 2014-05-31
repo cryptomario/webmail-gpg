@@ -1,0 +1,26 @@
+#!/usr/bin/perl
+#
+# requires:	-
+# input:	path of the install dir; if no input, uses current dir
+# output:	-
+# removes the binding of (encrypt|sign|verify)_in_place to the Fx keys in ~/.vimrc
+#
+use strict;
+use warnings;
+use Cwd;
+
+my $dir = cwd();
+if (@ARGV >= 1) {
+	$dir = $ARGV[0];
+}
+die "error: dir '$dir' does not exist\n usage: ./uninstall_vimrc <dir>\n" unless -d $dir;
+die "encrypt_in_place not found in dir '$dir'\n usage: ./uninstall_vimrc <dir>\n" unless -e $dir."/encrypt_in_place";
+
+open(my $vimrc, "+<", "$ENV{HOME}/.vimrc")
+	or die "cannot edit ~/.vimrc: $!";
+	my @text = grep{$_!~/^map #[1-9] :!\Q$dir\E\/(?:encrypt|sign|verify)_in_place %/} <$vimrc>;
+	seek($vimrc, 0, 0);
+	truncate($vimrc, 0);
+	print $vimrc @text;
+close($vimrc);
+

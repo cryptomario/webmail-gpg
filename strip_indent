@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+#
+# requires:	-
+# input:	a text file
+# output:	-
+# strips the first "> " in each line, or ">" if the line only consists of that
+#
+use strict;
+use warnings;
+
+die "error: file param missing\n" if @ARGV<1;
+die "error: file '$ARGV[0]' does not exist\n" unless -e $ARGV[0];
+open(my $file, "+<", $ARGV[0])
+	or die "cannot edit $ARGV[0]: $!";
+	my @text = <$file>;
+	seek($file, 0, 0);
+	truncate($file, 0);
+	foreach my $line (@text) {
+		$line =~ s/^>(?: |$)//; #some mail agents quote empty lines only with ">"
+		print $file $line;
+	}
+close($file);

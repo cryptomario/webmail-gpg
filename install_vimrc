@@ -1,0 +1,39 @@
+#!/usr/bin/perl
+#
+# requires:	-
+# input:	path of the install dir; if no input, uses current dir
+# output:	-
+# binds encrypt_in_place, sign_in_place, verify_in_place to the F3, F5, F6 keys in ~/.vimrc
+#
+use strict;
+use warnings;
+use Cwd;
+
+my $dir = cwd();
+if (@ARGV >= 1) {
+	$dir = $ARGV[0];
+}
+die "error: dir '$dir' does not exist\n usage: ./install_vimrc <dir>\n" unless -d $dir;
+die "encrypt_in_place not found in dir '$dir'\n usage: ./install_vimrc <dir>\n" unless -e $dir."/encrypt_in_place";
+
+open(my $outfile, ">>", "$ENV{HOME}/.vimrc")
+	or die "cannot write ~/.vimrc: $!";
+	if (`grep "map #3" $ENV{HOME}/.vimrc`) {
+		print "Key F3 already mapped in ~/.vimrc. Please map $dir/encrypt_in_place to a key of your choice.\n";
+	} else {
+		print $outfile "map #3 :!$dir/encrypt_in_place %\n";
+		print "Press F3 before editing to write an encrypted email.\n";
+	}
+	if (`grep "map #5" $ENV{HOME}/.vimrc`) {
+		print "Key F5 already mapped in ~/.vimrc. Please map $dir/sign_in_place to a key of your choice.\n";
+	} else {
+		print $outfile "map #5 :!$dir/sign_in_place %\n";
+		print "Use F5 after editing to sign an email.\n";
+	}
+	if (`grep "map #6" $ENV{HOME}/.vimrc`) {
+		print "Key F6 already mapped in ~/.vimrc. Please map $dir/verify_in_place to a key of your choice.\n";
+	} else {
+		print $outfile "map #6 :!$dir/verify_in_place %\n";
+		print "Use F6 before editing to verify the signature of a signed email.\n";
+	}
+close($outfile);
