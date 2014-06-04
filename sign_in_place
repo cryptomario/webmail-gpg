@@ -10,7 +10,7 @@ use warnings;
 
 die "error: file param missing\n" if @ARGV<1;
 die "error: file '$ARGV[0]' does not exist\n" unless -e $ARGV[0];
-my @crypted = `gpg --default-key F39E3D91 --clearsign --output - $ARGV[0]`;
+my @crypted = `gpg --clearsign --output - $ARGV[0]`;
 open(my $outfile, ">", $ARGV[0])
 	or die "cannot write $ARGV[0]: $!";
 	print $outfile @crypted;
