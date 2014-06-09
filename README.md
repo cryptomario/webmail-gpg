@@ -19,7 +19,9 @@ You should also have created a keypair and exchanged public keys with people, ma
 Installation
 ------------
 
+Run "make test" to check whether all requirements are fulfilled (firefox plugins won't be checked).
 Run "make install" to install files in ~/bin and bind the Fx keys in ~/.vimrc (see below).
+If you want to install the files somewhere else, just change the variable BINDIR in Makefile.
 Configure It's all text! to use ~/bin/webenc/reply.sh as the editor and add the .asc file extension.
 
 Use

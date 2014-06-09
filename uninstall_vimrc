@@ -9,16 +9,20 @@ use strict;
 use warnings;
 use Cwd;
 
-my $dir = cwd();
-if (@ARGV >= 1) {
-	$dir = $ARGV[0];
+my $dir = (@ARGV >= 1) ? $ARGV[0] : cwd();
+my $usage = "usage: ./install_vimrc <dir>\n";
+
+my $eip = 'encrypt_in_place';
+my $sip = 'sign_in_place';
+my $vip = 'verify_in_place';
+die "error: dir '$dir' does not exist\n $usage" unless -d $dir;
+for my $p ($eip, $sip, $vip){
+	die "error: $p not found in dir '$dir'\n $usage" unless -e "$dir/$p";
 }
-die "error: dir '$dir' does not exist\n usage: ./uninstall_vimrc <dir>\n" unless -d $dir;
-die "encrypt_in_place not found in dir '$dir'\n usage: ./uninstall_vimrc <dir>\n" unless -e $dir."/encrypt_in_place";
 
 open(my $vimrc, "+<", "$ENV{HOME}/.vimrc")
 	or die "cannot edit ~/.vimrc: $!";
-	my @text = grep{$_!~/^map #[1-9] :!\Q$dir\E\/(?:encrypt|sign|verify)_in_place %/} <$vimrc>;
+	my @text = grep{$_!~/^map #[1-9] :!\Q$dir\E\/(?:\Q$eip\E|\Q$sip\E|\Q$vip\E) %/} <$vimrc>;
 	seek($vimrc, 0, 0);
 	truncate($vimrc, 0);
 	print $vimrc @text;
