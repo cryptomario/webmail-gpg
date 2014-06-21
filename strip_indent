@@ -16,7 +16,7 @@ open(my $file, "+<", $ARGV[0])
 	seek($file, 0, 0);
 	truncate($file, 0);
 	foreach my $line (@text) {
-		$line =~ s/^>(?: |$)//; #some mail agents quote empty lines only with ">"
+		$line =~ s/^>?(?: |$)//; #some mail agents quote empty lines only with ">" or only space
 		print $file $line;
 	}
 close($file);
